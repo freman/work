@@ -23,8 +23,9 @@ type Flow struct {
 }
 
 // Add a job
-func (f *Flow) Add(job Job) {
+func (f *Flow) Add(job Job) *Flow {
 	f.jobs = append(f.jobs, job)
+	return f
 }
 
 // Execute the jobs
