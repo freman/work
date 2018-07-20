@@ -7,6 +7,10 @@ type Labelled struct {
 	task  Task
 }
 
+func (l *Labelled) Label() string {
+	return l.label
+}
+
 func (l *Labelled) Execute(ctx context.Context) error {
 	return l.task.Execute(ctx)
 }

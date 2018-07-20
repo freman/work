@@ -32,18 +32,8 @@ func (b *Bootstrap) MkdirAll(path string, perm os.FileMode) *Bootstrap {
 func (b *Bootstrap) IsWritable(path string) *Bootstrap {
 	b.Add(func(next work.Task) work.Task {
 		return work.LabelFunc(fmt.Sprintf("path is writable %s", path), func(ctx context.Context) error {
-			if _, err := os.Stat(path); err != nil {
-				if !os.IsNotExist(err) {
-					return err
-				}
-				path = filepath.Dir(path)
-				if _, err := os.Stat(path); err != nil {
-					return err
-				}
-			}
-
-			if unix.Access(path, unix.W_OK) != nil {
-				return os.ErrPermission
+			if err := IsWritable(path); err != nil {
+				return err
 			}
 
 			return next.Execute(ctx)
@@ -51,4 +41,22 @@ func (b *Bootstrap) IsWritable(path string) *Bootstrap {
 	})
 
 	return b
+}
+
+func IsWritable(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		path = filepath.Dir(path)
+		if _, err := os.Stat(path); err != nil {
+			return err
+		}
+	}
+
+	if unix.Access(path, unix.W_OK) != nil {
+		return os.ErrPermission
+	}
+
+	return nil
 }
